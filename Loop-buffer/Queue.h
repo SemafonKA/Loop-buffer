@@ -33,10 +33,7 @@ private:
 	int m_listCapacity{};
 
 	Node* listSearch(int pos) const {
-		if (pos >= m_listSize) {
-			throw std::logic_error("ERR003: out of range");
-			return nullptr;
-		}
+		if (pos >= m_listSize)		throw std::logic_error("ERR003: out of range");
 		if (pos < 0)				return nullptr;
 		if (pos == 0)				return m_front;
 		if (pos == m_listSize - 1)	return m_back;
@@ -90,7 +87,8 @@ private:
 
 		member->next->next = nextMember;
 		if (nextMember == nullptr) { m_back = member->next; }
-		if (pos < 0) { m_front = member->next; }
+		else if (pos == -1) { nextMember->prev = member->next; }
+		if (pos == -1)		{ m_front = member->next; }
 		++m_listSize;
 
 		return (*this);

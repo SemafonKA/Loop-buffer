@@ -13,11 +13,9 @@
 #include "Queue.h"
 
 using namespace std;
-const int sourceFileAmount = 10000;
 
 const string adrIfile      = "io-files\\input.txt";
 const string adrOfile      = "io-files\\output.txt";
-const string adrSourceFile = "source\\source.txt";
 
 void getFromFile(fstream& file, Queue::Queue<int>& queue, int size = 1) {
 	if (!file) throw logic_error("ERR005: file is not open");
@@ -42,28 +40,14 @@ void putToFile(fstream& file, const string& str) {
 	file << str << endl;
 }
 
-void fileFill(fstream& file, int amount = sourceFileAmount) {
-	if (!file) throw logic_error("ERR005: file is not open");
-	file.seekp(ios_base::beg);
-
-	random_device rd;
-	for (int i = 0; i < amount; ++i) {
-		file << static_cast<int>(rd() % 20001) - 10000 << ' ';
-	}
-	file.seekg(ios_base::beg);
-}
-
 int main() {
 	system("chcp 65001"); system("cls");
 	
-	char tmpch{};
 	int queueSize{};
 	int commandAmmount{};
 	
 	fstream input(adrIfile, ios_base::in);
 	fstream output(adrOfile, ios_base::out | ios_base::trunc);
-	fstream source(adrSourceFile, ios_base::in | ios_base::out | ios_base::trunc);
-	fileFill(source);
 
 	input >> queueSize >> commandAmmount;
 	Queue::Queue<int> queue(queueSize);
@@ -72,31 +56,31 @@ int main() {
 	for (int i{ 0 }; i < commandAmmount; ++i) {
 		int command{};
 		input >> command;
-		if (command > 0 && !queue.isFull()) {
-			for (int k{}; k < command; ++k) {
+		if (command > 0) {
+			for (int k{}; k < command; ++k, ++i) {
 				try {
-					getFromFile(source, queue);
+					getFromFile(input, queue);
 				}
 				catch (logic_error _err) {
 					string err = _err.what();
 					if (err.find("ERR") != string::npos) {
 						int errCode = stoi(err.substr(3,3));
-						switch (errCode) {
-						case 1: 
+						if (errCode == 1) {							// Queue is overflow
 							putToFile(output, "Memory overflow");
 							cout << err << endl;
-							k = command;
-							break;
-						case 4: 
-							fileFill(source);
-							break;
+							int tmp;
+							++k;
+							while(k < command){
+								input >> tmp;
+								++i; ++k;
+							}
 						}
 					}
 					else throw _err;
 				}
 			}
 		}
-		else if (command < 0 && !queue.isEmpty()) {
+		else if (command < 0) {
 			bool isErr{ false };
 			int sum{};
 			int count{};
@@ -108,14 +92,14 @@ int main() {
 					string err = _err.what();
 					if (err.find("ERR") != string::npos) {
 						int errCode = stoi(err.substr(3, 3));
-						if (errCode == 2) {
+						if (errCode == 2) {								// Queue is empty
 							isErr = true;
 
 							putToFile(output, sum / count);
 							cout << sum / count << endl;
 							putToFile(output, "Empty queue");
 							cout << err << endl;
-							break;
+							k = -command;								// Выход из цикла
 						}
 					}
 					else throw _err;

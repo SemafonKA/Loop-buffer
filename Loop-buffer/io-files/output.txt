@@ -1,8 +1,5 @@
-65
+1
 Memory overflow
--2453
-9180
-Empty queue
-425
--5823
+0
+3
 Empty queue
