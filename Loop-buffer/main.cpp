@@ -56,7 +56,7 @@ int main() {
 	for (int i{ 0 }; i < commandAmmount; ++i) {
 		int command{};
 		input >> command;
-		if (command > 0) {
+		if (command > 0) {											// Команда добавления
 			for (int k{}; k < command; ++k, ++i) {
 				try {
 					getFromFile(input, queue);
@@ -69,18 +69,18 @@ int main() {
 							putToFile(output, "Memory overflow");
 							cout << err << endl;
 							int tmp;
-							++k;
+							++k;									// Досчитывает оставшиеся числа (одно лишнее уже считано)
 							while(k < command){
 								input >> tmp;
 								++i; ++k;
-							}
+							}										// По завершении также выйдет из цикла внутри (command > 0)
 						}
 					}
 					else throw _err;
 				}
 			}
 		}
-		else if (command < 0) {
+		else if (command < 0) {										// Команда удаления и среднего арифметического
 			bool isErr{ false };
 			int sum{};
 			int count{};
@@ -95,11 +95,16 @@ int main() {
 						if (errCode == 2) {								// Queue is empty
 							isErr = true;
 
-							putToFile(output, sum / count);
-							cout << sum / count << endl;
+							if (count > 1) {
+								putToFile(output, sum / count);
+								cout << sum / count << endl;
+							}
+							else {
+								cout << sum << endl;
+							}
 							putToFile(output, "Empty queue");
 							cout << err << endl;
-							k = -command;								// Выход из цикла
+							k = -command;								// Выход из цикла внутри (command < 0)
 						}
 					}
 					else throw _err;
