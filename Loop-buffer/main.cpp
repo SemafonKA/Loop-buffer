@@ -14,8 +14,8 @@
 
 using namespace std;
 
-const string adrIfile      = "io-files\\input.txt";
-const string adrOfile      = "io-files\\output.txt";
+const string adrIfile = "io-files\\input.txt";
+const string adrOfile = "io-files\\output.txt";
 
 void getFromFile(fstream& file, Queue::Queue<int>& queue, int size = 1) {
 	if (!file) throw logic_error("ERR005: file is not open");
@@ -65,16 +65,20 @@ int main() {
 					string err = _err.what();
 					if (err.find("ERR") != string::npos) {
 						int errCode = stoi(err.substr(3,3));
-						if (errCode == 1) {							// Queue is overflow
+						switch (errCode) {
+						case 1:										// Queue is overflow
 							putToFile(output, "Memory overflow");
 							cout << err << endl;
 							int tmp;
 							++k;									// Досчитывает оставшиеся числа (одно лишнее уже считано)
-							while(k < command){
+							while (k < command) {
 								input >> tmp;
 								++i; ++k;
-							}										// По завершении также выйдет из цикла внутри (command > 0)
-						}
+							}										// По завершении также выйдет из цикла внутри if (command > 0)
+
+						default: 
+							throw _err;
+						} // switch (errCode)
 					}
 					else throw _err;
 				}
@@ -92,7 +96,8 @@ int main() {
 					string err = _err.what();
 					if (err.find("ERR") != string::npos) {
 						int errCode = stoi(err.substr(3, 3));
-						if (errCode == 2) {								// Queue is empty
+						switch (errCode) {
+						case 2:										// Queue is empty
 							isErr = true;
 
 							if (count > 1) {
@@ -100,12 +105,17 @@ int main() {
 								cout << sum / count << endl;
 							}
 							else {
+								putToFile(output, sum);
 								cout << sum << endl;
 							}
 							putToFile(output, "Empty queue");
 							cout << err << endl;
-							k = -command;								// Выход из цикла внутри (command < 0)
-						}
+							k = -command;							// Выход из цикла внутри if (command < 0)
+							break;
+
+						default: 
+							throw _err;
+						} // switch (errCode)
 					}
 					else throw _err;
 				}
